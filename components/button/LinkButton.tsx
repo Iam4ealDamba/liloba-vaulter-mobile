@@ -3,6 +3,7 @@
 import { Link } from "expo-router";
 import React, { useState, useEffect, FC } from "react";
 import { Pressable, Text, View } from "react-native";
+import CustomText from "../text/CustomText";
 
 // ||||||||||||||||||||||||||||| Link Button Component ||||||||||||||||||||||||||||||||||||
 
@@ -34,7 +35,9 @@ const LinkButton: FC<ILinkButtonProps> = ({
       asChild
     >
       <Pressable>
-        <Text className={style_2}>{text}</Text>
+        <CustomText font="SemiBold" style_1={style_2}>
+          {text}
+        </CustomText>
       </Pressable>
     </Link>
   );

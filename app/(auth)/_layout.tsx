@@ -1,18 +1,21 @@
 // ||||||||||||||||||||||||||||| Dependances ||||||||||||||||||||||||||||||||||||
 
-import { Redirect, Slot, Stack } from "expo-router";
+import { Stack } from "expo-router";
 import React, { useState, useEffect } from "react";
-import { Text, View } from "react-native";
+import Toast from "react-native-toast-message";
 
 // ||||||||||||||||||||||||||||| Auth Layout Component ||||||||||||||||||||||||||||||||||||
 
 const AuthLayout = () => {
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="/(auth)/index" options={{ headerShown: true }} />
-      <Stack.Screen name="/(auth)/login" options={{ headerShown: true }} />
-      <Stack.Screen name="/(auth)/register" options={{ headerShown: false }} />
-    </Stack>
+    <>
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="index" options={{ headerShown: false }} />
+        <Stack.Screen name="login" options={{ headerShown: false }} />
+        <Stack.Screen name="register" options={{ headerShown: false }} />
+      </Stack>
+      <Toast />
+    </>
   );
 };
 export default AuthLayout;

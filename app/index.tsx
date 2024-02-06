@@ -7,6 +7,6 @@ import { Text, View } from "react-native";
 // ||||||||||||||||||||||||||||| Index Router Component ||||||||||||||||||||||||||||||||||||
 
 const IndexRouter = () => {
-  return <Redirect href="/(auth)/login" />;
+  return <Redirect href="/(auth)" />;
 };
 export default IndexRouter;

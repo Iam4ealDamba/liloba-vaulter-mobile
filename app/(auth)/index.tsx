@@ -3,13 +3,14 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "expo-router";
 import { Button, ImageBackground, Pressable, SafeAreaView } from "react-native";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
 
 import background from "@/assets/bg.png";
 import LogoComponent from "@/components/logo";
 import LinkButton from "@/components/button/LinkButton";
+import CustomText from "@/components/text/CustomText";
 
 // ||||||||||||||||||||||||||||| Login Page Component ||||||||||||||||||||||||||||||||||||
 
@@ -43,12 +44,17 @@ const AuthIndexPage = () => {
               className="h-full"
             />
           </View>
-          <View className="h-[370px] py-2 bg-tw_primary">
-            <View className="flex flex-col gap-y-3 py-4">
+          <View className="h-[370px] py-2 space-y-4 bg-tw_primary">
+            <View className="space-y-3 py-4">
               <LogoComponent />
-              <Text className="w-[300px] mx-auto text-sm font-semibold text-center text-tw_accent">
-                L’application qui garde vos mot de passes en sécurité
-              </Text>
+              <View>
+                <CustomText
+                  style_1="w-[300px] mx-auto text-sm text-center text-tw_accent"
+                  font="SemiBold"
+                >
+                  L’application qui garde vos mot de passes en sécurité
+                </CustomText>
+              </View>
             </View>
             <View className="flex ">
               <LinkButton
@@ -60,12 +66,15 @@ const AuthIndexPage = () => {
             </View>
           </View>
           <View className="absolute w-full bottom-10 flex flex-col items-center justify-center">
-            <Text className="text-tw_text">Pas encore de compte ?</Text>
-            <Link
-              href={"/(auth)/register"}
-              className="text-tw_text font-bold underline"
-            >
-              Inscrivez-vous
+            <CustomText style_1="text-tw_text" font="Regular">
+              Pas encore de compte ?
+            </CustomText>
+            <Link href={"/(auth)/register"} asChild>
+              <Pressable>
+                <CustomText style_1="text-tw_text underline" font="SemiBold">
+                  Inscrivez-vous ici
+                </CustomText>
+              </Pressable>
             </Link>
           </View>
         </ImageBackground>
