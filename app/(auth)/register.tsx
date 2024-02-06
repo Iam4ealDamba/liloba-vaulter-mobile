@@ -22,7 +22,6 @@ import { FontAwesome6 } from "@expo/vector-icons";
 import RegularInput from "@/components/input/RegularInput";
 import RegularButton from "@/components/button/RegularButton";
 import { useCustomToast } from "@/hooks/CustomToast";
-import { UserRegisterService } from "@/services/users";
 
 // ||||||||||||||||||||||||||||| Register Page Component ||||||||||||||||||||||||||||||||||||
 
@@ -48,7 +47,6 @@ const RegisterPage = () => {
 
   // Functions
   const handleFormSubmit: SubmitHandler<IRegisterPageInput> = (data) => {
-    UserRegisterService(data.username, data.email, data.password);
     useCustomToast({
       type: "info",
       header: "Requete en cours",

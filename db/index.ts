@@ -1,22 +1,28 @@
-import { Platform } from "react-native";
-import { Database } from "@nozbe/watermelondb";
-import SQLiteAdapter from "@nozbe/watermelondb/adapters/sqlite";
+import { IUserModelRegister } from "@/utils/interfaces";
+import ClientExpoSQLite from "@expo/knex-expo-sqlite-dialect";
+import Knex from "knex";
 
-import { migrations } from "./model/migrations";
-import { schema } from "./model/schema";
-import UserModel from "./model/User";
-import ServiceModel from "./model/Service";
-
-const adapter = new SQLiteAdapter({
-  schema,
-  // (You might want to comment it out for development purposes,
-  // migrations,
-  dbName: "lvdb",
-  jsi: Platform.OS == "ios" ? true : false,
-  onSetUpError: (error) => console.log("onSetUpError", error),
+export const knex = Knex({
+  client: ClientExpoSQLite,
+  connection: {
+    filename: "MyDB.db",
+  },
+  useNullAsDefault: true,
 });
 
-export const database = new Database({
-  adapter,
-  modelClasses: [UserModel, ServiceModel],
-});
+const GetAllUser = async () => {
+  return await knex.select().from<IUserModelRegister>("users");
+};
+
+const InsertUser = async (
+  username: string,
+  email: string,
+  password: string,
+  img_url?: string
+) => {
+  await knex("users").insert({
+    username: "test",
+    email: "test",
+    password: "test",
+  });
+};
