@@ -1,12 +1,15 @@
 // ||||||||||||||||||||||||||||| Dependances ||||||||||||||||||||||||||||||||||||
 
-import { Redirect, Slot } from "expo-router";
-import React, { useState, useEffect } from "react";
-import { Text, View } from "react-native";
+import React, { FC } from "react";
+import { Stack } from "expo-router";
+import "../global.css";
 
-// ||||||||||||||||||||||||||||| Root Layout Component ||||||||||||||||||||||||||||||||||||
+// ||||||||||||||||||||||||||||| RootLayout Component ||||||||||||||||||||||||||||||||||||
 
-const RootLayout = () => {
-  return <Slot screenOptions={{ headerShown: false }} />;
+interface IRootLayoutProps {}
+
+const RootLayout: FC<IRootLayoutProps> = () => {
+  // Return
+  return <Stack />;
 };
 export default RootLayout;
