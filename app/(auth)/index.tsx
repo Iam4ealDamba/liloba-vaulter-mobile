@@ -7,12 +7,13 @@ import { View } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
 
-import background from "@/assets/bg.png";
 import LogoComponent from "@/components/logo";
 import LinkButton from "@/components/button/LinkButton";
 import CustomText from "@/components/text/CustomText";
 
 // ||||||||||||||||||||||||||||| Login Page Component ||||||||||||||||||||||||||||||||||||
+
+const background = require("@/assets/bg.png");
 
 const AuthIndexPage = () => {
   // Hooks
@@ -20,7 +21,7 @@ const AuthIndexPage = () => {
 
   // Effects
   useEffect(() => {
-    // Enter some content here.
+    // Enter some content here. s
   }, []);
 
   // Return

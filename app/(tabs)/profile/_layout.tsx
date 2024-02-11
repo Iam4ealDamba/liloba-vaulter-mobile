@@ -1,6 +1,9 @@
 // ||||||||||||||||||||||||||||| Dependances ||||||||||||||||||||||||||||||||||||
 
 import IconButton from "@/components/button/IconButton";
+import UserQueries from "@/services/queries/users";
+import { useAppDispatch } from "@/store";
+import { logoutSlice } from "@/store/user";
 import colors from "@/utils/colors";
 import { FontAwesome } from "@expo/vector-icons";
 import { Stack, useRouter } from "expo-router";
@@ -12,12 +15,17 @@ import { Alert, Text, View } from "react-native";
 interface IProfileLayoutProps {}
 
 const ProfileLayout: FC<IProfileLayoutProps> = () => {
+  // Redux
+  const AppDispatch = useAppDispatch();
+
   // Hooks
   const [val, setVal] = useState();
   const router = useRouter();
 
   // Functions
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await UserQueries.UserLogout();
+    AppDispatch(logoutSlice());
     router.push("/(auth)");
   };
 
@@ -36,7 +44,7 @@ const ProfileLayout: FC<IProfileLayoutProps> = () => {
           headerRight(props) {
             return (
               <IconButton
-                style="bg-tw_secondary my-4"
+                style="bg-error my-4"
                 on_pressed={() => {
                   Alert.alert(
                     "Deconnexion",
@@ -64,6 +72,7 @@ const ProfileLayout: FC<IProfileLayoutProps> = () => {
           headerStyle: {
             backgroundColor: colors.tw_bg,
           },
+          headerTintColor: colors.tw_bg,
         }}
       />
       <Stack.Screen

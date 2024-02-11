@@ -1,13 +1,14 @@
 // ||||||||||||||||||||||||||||| Dependances ||||||||||||||||||||||||||||||||||||
 
-import TabButton from "@/components/button/TabButton";
-import colors from "@/utils/colors";
-import { FontAwesome, FontAwesome6 } from "@expo/vector-icons";
+import { StyleSheet } from "react-native";
+import { Tabs } from "expo-router";
+import { FontAwesome } from "@expo/vector-icons";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
-import { Redirect, Slot, Stack, Tabs } from "expo-router";
-import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import React from "react";
+
+import colors from "@/utils/colors";
+import Toast from "react-native-toast-message";
 
 // ||||||||||||||||||||||||||||| Auth Layout Component ||||||||||||||||||||||||||||||||||||
 
@@ -42,6 +43,7 @@ const TabsLayout = () => {
             }}
           />
         </Tabs>
+        <Toast />
       </BottomSheetModalProvider>
     </GestureHandlerRootView>
   );

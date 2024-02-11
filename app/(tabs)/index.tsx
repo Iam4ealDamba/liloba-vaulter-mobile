@@ -12,138 +12,43 @@ import CustomText from "@/components/text/CustomText";
 import ServiceBottomSheetModal from "@/components/modal/ServiceBottomSheetModal";
 import AddServiceBottomSheetModal from "@/components/modal/AddServiceBottomSheetModal";
 import ModifyServiceBottomSheetModal from "@/components/modal/ModifyServiceBottomSheetModal";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { UpdateRefreshListSlice } from "@/store/service";
 
 // ||||||||||||||||||||||||||||| HomeTabsPage Component ||||||||||||||||||||||||||||||||||||
 
 interface IHomeTabsPageProps {}
 
 const HomeTabsPage: FC<IHomeTabsPageProps> = () => {
+  // Redux
+  const services_slice = useAppSelector((state) => state.service.data);
+  const refresh_list_slice = useAppSelector(
+    (state) => state.service.can_refresh_list
+  );
+  const AppDispatch = useAppDispatch();
+
   // Hooks
+  const [services_list, setServicesList] = useState<IServiceItem[]>([]);
   const [search_text, setSearchText] = useState("");
   const [open_service_detail, setOpenServiceDetail] = useState(false);
-  const [open_service_modify, setOpenServiceModify] = useState(false);
   const [open_service_add, setOpenServiceAdd] = useState(false);
   const [selected_service_item, setSelectedServiceItem] =
-    useState<IServiceItem | null>(null);
-  const [selected_update_service_item, setSelectedUpdateServiceItem] =
     useState<IServiceItem | null>(null);
 
   const searchbar_ref = useRef<TextInput>(null);
 
-  // Variables
-  const services_list: IServiceItem[] = [
-    {
-      id: 1,
-      name: "Service 1",
-      email: "adresse.1@email",
-      password: "123456",
-      created_at: "02/02/2024 19:22:00",
-      updated_at: "02/02/2024 19:22:00",
-    },
-    {
-      id: 2,
-      name: "Service 2",
-      email: "adresse.2@email",
-      password: "123456",
-      created_at: "02/02/2024 19:22:00",
-      updated_at: "02/02/2024 19:22:00",
-    },
-    {
-      id: 4,
-      name: "Service 4",
-      email: "adresse.4@email",
-      password: "123456",
-      created_at: "02/02/2024 19:22:00",
-      updated_at: "02/02/2024 19:22:00",
-    },
-    {
-      id: 5,
-      name: "Service 5",
-      email: "adresse.5@email",
-      password: "123456",
-      created_at: "02/02/2024 19:22:00",
-      updated_at: "02/02/2024 19:22:00",
-    },
-    {
-      id: 6,
-      name: "Service 6",
-      email: "adresse.6@email",
-      password: "123456",
-      created_at: "02/02/2024 19:22:00",
-      updated_at: "02/02/2024 19:22:00",
-    },
-    {
-      id: 7,
-      name: "Service 7",
-      email: "adresse.7@email",
-      password: "123456",
-      created_at: "02/02/2024 19:22:00",
-      updated_at: "02/02/2024 19:22:00",
-    },
-    {
-      id: 8,
-      name: "Service 8",
-      email: "adresse.8@email",
-      password: "123456",
-      created_at: "02/02/2024 19:22:00",
-      updated_at: "02/02/2024 19:22:00",
-    },
-    {
-      id: 9,
-      name: "Service 9",
-      email: "adresse.9@email",
-      password: "123456",
-      created_at: "02/02/2024 19:22:00",
-      updated_at: "02/02/2024 19:22:00",
-    },
-    {
-      id: 10,
-      name: "Service 10",
-      email: "adresse.10@email",
-      password: "123456",
-      created_at: "02/02/2024 19:22:00",
-      updated_at: "02/02/2024 19:22:00",
-    },
-    {
-      id: 11,
-      name: "Service 11",
-      email: "adresse.11@email",
-      password: "123456",
-      created_at: "02/02/2024 19:22:00",
-      updated_at: "02/02/2024 19:22:00",
-    },
-    {
-      id: 12,
-      name: "Service 12",
-      email: "adresse.12@email",
-      password: "123456",
-      created_at: "02/02/2024 19:22:00",
-      updated_at: "02/02/2024 19:22:00",
-    },
-    {
-      id: 13,
-      name: "Service 13",
-      email: "adresse.13@email",
-      password: "123456",
-      created_at: "02/02/2024 19:22:00",
-      updated_at: "02/02/2024 19:22:00",
-    },
-    {
-      id: 14,
-      name: "Service 14",
-      email: "adresse.14@email",
-      password: "123456",
-      created_at: "02/02/2024 19:22:00",
-      updated_at: "02/02/2024 19:22:00",
-    },
-  ];
-
   const list_to_show = services_list.filter((el) => {
     if (search_text.length < 3) {
       return el;
-    } else {
-      if (new RegExp(search_text, "gi").exec(el.name))
-        return el.name.toLowerCase().includes(search_text.toLowerCase());
+    }
+
+    if (
+      el.service_name
+        .toString()
+        .toLowerCase()
+        .includes(search_text.toString().toLowerCase())
+    ) {
+      return el;
     }
   });
 
@@ -152,6 +57,18 @@ const HomeTabsPage: FC<IHomeTabsPageProps> = () => {
     setOpenServiceDetail(true);
     setSelectedServiceItem(service);
   };
+
+  // Effects
+  useEffect(() => {
+    setServicesList(services_slice);
+  }, []);
+
+  useEffect(() => {
+    if (refresh_list_slice) {
+      setServicesList(services_slice);
+      AppDispatch(UpdateRefreshListSlice(false));
+    }
+  }, [services_slice.length, refresh_list_slice]);
 
   // Return
   return (
@@ -182,8 +99,7 @@ const HomeTabsPage: FC<IHomeTabsPageProps> = () => {
             {list_to_show.length ? (
               list_to_show.map((service) => (
                 <ServiceItem
-                  key={service.id}
-                  text="Service"
+                  key={service.service_id}
                   data={service}
                   on_pressed={() => handleOnPress(service)}
                 />
@@ -204,21 +120,20 @@ const HomeTabsPage: FC<IHomeTabsPageProps> = () => {
           <FontAwesome6 name="add" size={20} color={colors.tw_primary} />
         </Pressable>
       </View>
-      <ServiceBottomSheetModal
-        is_open={open_service_detail}
-        setIsOpen={setOpenServiceDetail}
-        selected={selected_service_item}
-        set_selected_modify={setSelectedUpdateServiceItem}
-      />
-      <AddServiceBottomSheetModal
-        is_open={open_service_add}
-        setIsOpen={setOpenServiceAdd}
-      />
-      <ModifyServiceBottomSheetModal
-        setIsOpen={setOpenServiceModify}
-        set_selected_modify={setSelectedUpdateServiceItem}
-        selected={selected_update_service_item}
-      />
+      {selected_service_item && (
+        <ServiceBottomSheetModal
+          is_open={open_service_detail}
+          setIsOpen={setOpenServiceDetail}
+          selected={selected_service_item}
+          setSelected={setSelectedServiceItem}
+        />
+      )}
+      {open_service_add && (
+        <AddServiceBottomSheetModal
+          is_open={open_service_add}
+          setIsOpen={setOpenServiceAdd}
+        />
+      )}
     </View>
   );
 };

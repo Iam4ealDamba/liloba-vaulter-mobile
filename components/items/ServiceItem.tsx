@@ -40,13 +40,13 @@ const ServiceItem: FC<IServiceItemProps> = ({
       ></View>
       <View aria-label="Right" className="flex-1">
         <CustomText font="Black" style_1="text-tw_text">
-          {data ? data.name : text}
+          {data ? data.service_name : text}
         </CustomText>
         <CustomText
           font="Regular"
           style_1="text-sm text-tw_accent line-clamp-1"
         >
-          {data ? data.email : "adresse@email.com"}
+          {data ? data.service_email : "adresse@email.com"}
         </CustomText>
       </View>
     </Pressable>

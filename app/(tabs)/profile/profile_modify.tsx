@@ -2,7 +2,7 @@
 
 import React, { FC, useState, useEffect } from "react";
 import { Alert, Image } from "react-native";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { FontAwesome } from "@expo/vector-icons";
 import { Pressable, Text, View } from "react-native";
 import { TextInput, TouchableOpacity } from "react-native-gesture-handler";
@@ -15,6 +15,18 @@ import colors from "@/utils/colors";
 import { IProfileModify } from "@/utils/interfaces";
 import RegularInput from "@/components/input/RegularInput";
 import RegularButton from "@/components/button/RegularButton";
+import { useAppDispatch, useAppSelector } from "@/store";
+import { ZodProfileModify } from "@/services/types";
+import { useCustomToast } from "@/hooks/CustomToast";
+import UserQueries from "@/services/queries/users";
+import { StatusCode } from "@/utils/enums";
+import {
+  updateCanRefreshUserSlice,
+  updateImageUrlSlice,
+  updateProfileSlice,
+} from "@/store/user";
+import { useRouter } from "expo-router";
+import ProfileUpdateImageSheet from "@/components/modal/profile/ProfileUpdateImageSheet";
 
 // ||||||||||||||||||||||||||||| ProfileModify Component ||||||||||||||||||||||||||||||||||||
 
@@ -23,16 +35,86 @@ const AvatarPng = require("@/assets/avatar.png");
 interface IProfileModifyProps {}
 
 const ProfileModify: FC<IProfileModifyProps> = () => {
+  // Redux
+  const { data } = useAppSelector((state) => state.user);
+  const AppDispatch = useAppDispatch();
+
   // Hooks
+  const [is_image_modal, setIsImageModal] = useState(false);
   const [show_image_modal, setShowImageModal] = useState(false);
   const [avatar_image, setAvatarImage] = useState<string>("");
-  const [image_loading, setImageLoading] = useState(true);
+  const [field_error, setField_error] = React.useState<{
+    selector: string;
+    msg: string;
+  } | null>(null);
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<IProfileModify>({
+    defaultValues: {
+      username: data?.username || "",
+      email: data?.email || "",
+    },
+  });
+  const router = useRouter();
 
-  const { control } = useForm<IProfileModify>();
+  // Functions
+  const handleSubmitForm: SubmitHandler<IProfileModify> = async ({
+    email,
+    username,
+  }) => {
+    const verify_form = ZodProfileModify.safeParse({
+      email,
+      username,
+    });
+    if (!verify_form.success) {
+      setField_error({
+        selector: verify_form.error.errors[0].path[0].toString(),
+        msg: verify_form.error.errors[0].message,
+      });
+      return;
+    }
 
-  const {} = useForm();
+    const is_field_same = email === data?.email && username === data?.username;
+    if (is_field_same) {
+      useCustomToast({
+        type: "info",
+        header: "Modification Profile",
+        body: "Info: aucune modification n'a été effectuée.",
+      });
+      return;
+    }
 
-  // Functionss
+    const modify = await UserQueries.UserUpdate(username, email);
+    if (modify.status !== StatusCode.OK) {
+      useCustomToast({
+        type: "error",
+        header: "Modification Profile",
+        body: "Erreur: le profile n'a pas été modifié.",
+      });
+      return;
+    }
+
+    const modify_data = {
+      username: (modify.data as IProfileModify).username,
+      email: (modify.data as IProfileModify).email,
+    };
+
+    AppDispatch(updateProfileSlice(modify_data));
+    AppDispatch(updateCanRefreshUserSlice(true));
+
+    useCustomToast({
+      type: "success",
+      header: "Modification Profile",
+      body: "Succès: Le profile a été modifié.",
+    });
+    new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(router.back());
+      }, 1000);
+    });
+  };
   const handleUploadImage = async (mode: "camera" | "gallery") => {
     try {
       let result: ImagePicker.ImagePickerResult;
@@ -70,7 +152,7 @@ const ProfileModify: FC<IProfileModifyProps> = () => {
       setShowImageModal(false);
     }
   };
-  const handleRemoveImage = () => {
+  const handleRemoveImage = async () => {
     try {
       saveImage("");
     } catch ({ message }: any) {
@@ -95,16 +177,32 @@ const ProfileModify: FC<IProfileModifyProps> = () => {
   const saveImage = async (image: string) => {
     try {
       const get_img = await downloadImage(image);
+      await UserQueries.UserUpdateImg(get_img);
+      AppDispatch(updateImageUrlSlice(get_img));
+      AppDispatch(updateCanRefreshUserSlice(true));
       setAvatarImage(get_img);
       setShowImageModal(false);
+      useCustomToast({
+        type: "success",
+        header: "Modification Image",
+        body: "Succès: L'image a bien été changé !",
+      });
+      new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(router.back());
+        }, 2000);
+      });
     } catch (error) {
       throw error;
     }
   };
 
-  // Effects
   useEffect(() => {
-    // Enter some content here.
+    if (data?.img_url.length) {
+      setAvatarImage(data?.img_url);
+    } else {
+      setAvatarImage("");
+    }
   }, []);
 
   // Return
@@ -117,8 +215,14 @@ const ProfileModify: FC<IProfileModifyProps> = () => {
             className="relative w-48 h-48 mx-auto"
           >
             <Image
-              source={avatar_image.length ? { uri: avatar_image } : AvatarPng}
-              className="w-full h-full rounded-3xl"
+              source={
+                avatar_image.length
+                  ? {
+                      uri: avatar_image as string,
+                    }
+                  : AvatarPng
+              }
+              className="w-full h-full rounded-md"
             />
             <TouchableOpacity
               onPress={() => setShowImageModal(true)}
@@ -128,109 +232,92 @@ const ProfileModify: FC<IProfileModifyProps> = () => {
             </TouchableOpacity>
           </View>
         </View>
-        <View aria-label="Bottom" className="w-full space-y-10">
-          <View aria-label="Inputs" className="space-y-6">
-            <View aria-label="Input Field">
-              <Controller
-                control={control}
-                name="username"
-                render={({ field: { value, onChange } }) => (
-                  <RegularInput style="bg-tw_primary">
-                    <TextInput
-                      value={value}
-                      onChangeText={onChange}
-                      placeholder="Votre nom d'utilisateur"
-                      placeholderTextColor={colors.tw_accent}
-                      className="w-full text-tw_text"
-                    />
-                  </RegularInput>
-                )}
-              />
+        <View aria-label="Bottom" className="w-full space-y-4">
+          <View aria-label="Inputs" className="space-y-5">
+            <View aria-label="Input Field" className="space-y-3">
+              <View>
+                <CustomText font="Medium" style_1="text-tw_text">
+                  Nom d'uitilisateur
+                </CustomText>
+              </View>
+              <View>
+                <Controller
+                  control={control}
+                  name="username"
+                  render={({ field: { value, onChange } }) => (
+                    <RegularInput
+                      style={`bg-tw_primary ${
+                        field_error?.selector == "username"
+                          ? "border-2 border-error"
+                          : ""
+                      }`}
+                    >
+                      <TextInput
+                        value={value}
+                        onChangeText={onChange}
+                        placeholder="Votre nom d'utilisateur"
+                        placeholderTextColor={colors.tw_accent}
+                        className="w-full text-tw_text"
+                      />
+                    </RegularInput>
+                  )}
+                />
+              </View>
             </View>
-            <View aria-label="Input Field">
-              <Controller
-                control={control}
-                name="email"
-                render={({ field: { value, onChange } }) => (
-                  <RegularInput style="bg-tw_primary">
-                    <TextInput
-                      value={value}
-                      onChangeText={onChange}
-                      placeholder="Votre adresse email"
-                      placeholderTextColor={colors.tw_accent}
-                      className="w-full text-tw_text"
-                    />
-                  </RegularInput>
-                )}
-              />
+            <View aria-label="Input Field" className="space-y-3">
+              <View>
+                <CustomText font="Medium" style_1="text-tw_text">
+                  Adresse email
+                </CustomText>
+              </View>
+              <View>
+                <Controller
+                  control={control}
+                  name="email"
+                  render={({ field: { value, onChange } }) => (
+                    <RegularInput
+                      style={`bg-tw_primary ${
+                        field_error?.selector == "email"
+                          ? "border-2 border-error"
+                          : ""
+                      }`}
+                    >
+                      <TextInput
+                        value={value}
+                        onChangeText={onChange}
+                        placeholder="Votre adresse email"
+                        placeholderTextColor={colors.tw_accent}
+                        className="w-full text-tw_text"
+                      />
+                    </RegularInput>
+                  )}
+                />
+              </View>
             </View>
           </View>
-          <View aria-label="Buttons" className="w-full">
-            <RegularButton style="w-full" text="Modifier Profile" />
+          <View className="space-y-3">
+            <View>
+              <CustomText font="SemiBold" style_1="text-sm text-error">
+                {field_error?.msg || ""}
+              </CustomText>
+            </View>
+            <TouchableOpacity
+              aria-label="Buttons"
+              activeOpacity={0.8}
+              className="w-full"
+              onPress={handleSubmit(handleSubmitForm)}
+            >
+              <RegularButton style={`w-full`} text="Modifier Profile" />
+            </TouchableOpacity>
           </View>
         </View>
       </View>
-      <Pressable
-        aria-label="Image Modal"
-        onPress={() => setShowImageModal(false)}
-        className={`top-0 left-0 w-[100vw] h-[100vh] flex items-center justify-center bg-black/50 ${
-          show_image_modal ? "absolute" : "hidden"
-        }`}
-      >
-        <View className="w-[80%] py-6 space-y-6 rounded-lg bg-tw_primary">
-          <View className="w-full">
-            <CustomText
-              style_1="text-lg text-tw_text text-center"
-              font="SemiBold"
-            >
-              Photo de profile
-            </CustomText>
-          </View>
-          <View className="flex flex-row items-center justify-center gap-x-6">
-            <View>
-              <IconButton
-                style="bg-tw_secondary w-16 h-14"
-                on_pressed={() => handleUploadImage("camera")}
-              >
-                <FontAwesome
-                  name="camera"
-                  size={22}
-                  color={colors.tw_primary}
-                />
-                <CustomText style_1="text-xs text-tw_primary" font="Bold">
-                  Photo
-                </CustomText>
-              </IconButton>
-            </View>
-            <View>
-              <IconButton
-                style="bg-tw_secondary w-16 h-14"
-                on_pressed={() => handleUploadImage("gallery")}
-              >
-                <FontAwesome
-                  name="picture-o"
-                  size={22}
-                  color={colors.tw_primary}
-                />
-                <CustomText style_1="text-xs text-tw_primary" font="Bold">
-                  Gallerie
-                </CustomText>
-              </IconButton>
-            </View>
-            <View>
-              <IconButton
-                style="bg-tw_secondary w-16 h-14"
-                on_pressed={handleRemoveImage}
-              >
-                <FontAwesome name="trash" size={22} color={colors.tw_primary} />
-                <CustomText style_1="text-xs text-tw_primary" font="Bold">
-                  Retirer
-                </CustomText>
-              </IconButton>
-            </View>
-          </View>
-        </View>
-      </Pressable>
+      <ProfileUpdateImageSheet
+        is_open={show_image_modal}
+        setIsOpen={setShowImageModal}
+        handleUploadImage={handleUploadImage}
+        handleRemoveImage={handleRemoveImage}
+      />
     </View>
   );
 };

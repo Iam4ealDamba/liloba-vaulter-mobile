@@ -1,7 +1,7 @@
 // ||||||||||||||||||||||||||||| Dependances ||||||||||||||||||||||||||||||||||||
 
 import React, { useEffect, useState } from "react";
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import {
   ImageBackground,
   Pressable,
@@ -13,7 +13,6 @@ import { LinearGradient } from "expo-linear-gradient";
 import { StatusBar } from "expo-status-bar";
 import { useForm, SubmitHandler, Controller } from "react-hook-form";
 
-import background from "@/assets/bg.png";
 import colors from "@/utils/colors";
 import LogoComponent from "@/components/logo";
 import LinkButton from "@/components/button/LinkButton";
@@ -22,7 +21,13 @@ import { FontAwesome6 } from "@expo/vector-icons";
 import RegularInput from "@/components/input/RegularInput";
 import RegularButton from "@/components/button/RegularButton";
 import { useCustomToast } from "@/hooks/CustomToast";
-import { UserRegisterService } from "@/services/users";
+import IconButton from "@/components/button/IconButton";
+import { ZodUserRegister } from "@/services/types";
+import UserQueries from "@/services/queries/users";
+import { StatusCode } from "@/utils/enums";
+import { useAppDispatch } from "@/store";
+import { GetTokenSlice, IUserStoreModel, loginSlice } from "@/store/user";
+import { IUserModel } from "@/utils/interfaces";
 
 // ||||||||||||||||||||||||||||| Register Page Component ||||||||||||||||||||||||||||||||||||
 
@@ -32,8 +37,17 @@ interface IRegisterPageInput {
   password: string;
 }
 
+const background = require("@/assets/bg.png");
+
 const RegisterPage = () => {
+  // Redux
+  const AppDispatch = useAppDispatch();
+
   // Hooks
+  const [field_error, setField_error] = React.useState<{
+    selector: string;
+    msg: string;
+  } | null>(null);
   const {
     control,
     handleSubmit,
@@ -45,14 +59,66 @@ const RegisterPage = () => {
       password: "",
     },
   });
+  const router = useRouter();
 
   // Functions
-  const handleFormSubmit: SubmitHandler<IRegisterPageInput> = (data) => {
-    UserRegisterService(data.username, data.email, data.password);
+  const handleReturnLink = () => {
+    router.replace("/(auth)");
+  };
+  const handleFormSubmit: SubmitHandler<IRegisterPageInput> = async ({
+    username,
+    email,
+    password,
+  }) => {
+    const verify_form = ZodUserRegister.safeParse({
+      username,
+      email,
+      password,
+    });
+    if (!verify_form.success) {
+      setField_error({
+        selector: verify_form.error.errors[0].path[0].toString(),
+        msg: verify_form.error.errors[0].message,
+      });
+
+      useCustomToast({
+        type: "error",
+        header: `Formulaire invalide`,
+        body: verify_form.error.errors[0].message,
+      });
+
+      return;
+    }
+
+    const register = await UserQueries.UserRegister(
+      username,
+      email.toLowerCase(),
+      password
+    );
+    if (register.status !== StatusCode.Created) {
+      useCustomToast({
+        type: "error",
+        header: `Requête échouée (${register.status})`,
+        body: register.data as string,
+      });
+      return;
+    }
+
+    AppDispatch(
+      GetTokenSlice((register.data as IUserModel).user_id!.toString())
+    );
+    AppDispatch(loginSlice(register.data as IUserStoreModel));
+
     useCustomToast({
-      type: "info",
-      header: "Requete en cours",
-      body: "Veuillez patienter...",
+      type: "success",
+      header: `Inscription reussie`,
+      body: "Vous allez être redirigés...",
+    });
+
+    new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(router.replace("/(tabs)"));
+      }, 1000);
     });
   };
 
@@ -84,9 +150,32 @@ const RegisterPage = () => {
           </View>
           <View
             aria-label="Content"
-            className="h-2/3 space-y-2 py-2 px-6 bg-tw_primary"
+            className="h-3/4 space-y-4 py-2 px-6 bg-tw_primary"
           >
-            <View className="flex flex-col gap-y-3 py-4">
+            <View className="flex flex-col py-4">
+              <Pressable
+                onPress={handleReturnLink}
+                className="flex flex-row pb-4 items-center"
+              >
+                <View>
+                  <IconButton
+                    style="w-8 h-8 bg-tw_secondary"
+                    on_pressed={handleReturnLink}
+                  >
+                    <FontAwesome6
+                      name="arrow-left"
+                      size={20}
+                      color={colors.tw_primary}
+                    />
+                  </IconButton>
+                </View>
+                <CustomText
+                  style_1="text-lg underline text-tw_text ml-4"
+                  font="Bold"
+                >
+                  Retour en arrière
+                </CustomText>
+              </Pressable>
               <CustomText style_1="text-2xl text-tw_text" font="Bold">
                 Bienvenue sur Liloba Vaulter !
               </CustomText>
@@ -94,8 +183,8 @@ const RegisterPage = () => {
                 Vos futures mot de passe sont à l’abris ici
               </CustomText>
             </View>
-            <View aria-label="Form" className="space-y-10">
-              <View className="space-y-3" aria-label="Inputs">
+            <View aria-label="Form" className="space-y-6">
+              <View className="flex gap-y-3" aria-label="Inputs">
                 <View aria-label="Input" className=" flex space-y-3">
                   <CustomText style_1="text-tw_text mb-3" font="Regular">
                     Nom D&apos;utilisateur
@@ -114,7 +203,7 @@ const RegisterPage = () => {
                         <TextInput
                           placeholder="Entrer un nom d'utilisateur"
                           placeholderTextColor={colors.tw_text + "80"}
-                          className="ml-3 placeholder-tw_text"
+                          className="w-full ml-3 placeholder-tw_text text-tw_text "
                           value={value}
                           onChangeText={onChange}
                         />
@@ -122,9 +211,10 @@ const RegisterPage = () => {
                     />
                   </RegularInput>
                   <CustomText style_1="text-error" font="Regular">
-                    {errors.username
-                      ? "Erreur: Veuillez entrer votre nom d'utilisateur."
-                      : ""}
+                    {(errors.username && "Erreur: Champ invalide") ||
+                      (field_error?.selector == "username" &&
+                        field_error.msg) ||
+                      ""}
                   </CustomText>
                 </View>
                 <View aria-label="Input" className=" flex space-y-3">
@@ -145,7 +235,7 @@ const RegisterPage = () => {
                         <TextInput
                           placeholder="Entrer une adresse email"
                           placeholderTextColor={colors.tw_text + "80"}
-                          className="ml-3 placeholder-tw_text"
+                          className="w-full ml-3 placeholder-tw_text text-tw_text "
                           value={value}
                           onChangeText={onChange}
                         />
@@ -153,9 +243,9 @@ const RegisterPage = () => {
                     />
                   </RegularInput>
                   <CustomText style_1="text-error" font="Regular">
-                    {errors.email
-                      ? "Erreur: Veuillez entrer votre adresse email."
-                      : ""}
+                    {(errors.email && "Erreur: Champ invalide") ||
+                      (field_error?.selector == "email" && field_error.msg) ||
+                      ""}
                   </CustomText>
                 </View>
                 <View aria-label="Input" className=" flex space-y-3">
@@ -172,7 +262,7 @@ const RegisterPage = () => {
                         <TextInput
                           placeholder="Entrer un mot de passe"
                           placeholderTextColor={colors.tw_text + "80"}
-                          className="ml-3 placeholder-tw_text"
+                          className="w-full ml-3 placeholder-tw_text text-tw_text "
                           value={value}
                           onChangeText={onChange}
                         />
@@ -180,9 +270,10 @@ const RegisterPage = () => {
                     />
                   </RegularInput>
                   <CustomText style_1="text-error" font="Regular">
-                    {errors.password
-                      ? "Erreur: Veuillez entrer votre mot de passe."
-                      : ""}
+                    {(errors.password && "Erreur: Champ invalide") ||
+                      (field_error?.selector == "password" &&
+                        field_error.msg) ||
+                      ""}
                   </CustomText>
                 </View>
               </View>
@@ -197,7 +288,7 @@ const RegisterPage = () => {
                 </View>
               </View>
             </View>
-            <View aria-label="Footer Link" className="w-full pt-7">
+            <View aria-label="Footer Link" className="w-full pt-8">
               <CustomText style_1="text-tw_text text-center" font="Regular">
                 Déjà inscrit ?
               </CustomText>

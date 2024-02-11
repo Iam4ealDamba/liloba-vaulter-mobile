@@ -3,8 +3,8 @@
     {
       "previewLimit": 50,
       "driver": "SQLite",
-      "name": "Liloba Vaulter",
-      "database": "${workspaceFolder:liloba-vaulter-mobile}/assets/database/db.sqlite"
+      "database": "${workspaceFolder:liloba-vaulter-mobile}/services/db/mydb.sql",
+      "name": "truc"
     }
   ]
 }

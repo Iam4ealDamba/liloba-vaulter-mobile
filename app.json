@@ -1,18 +1,18 @@
 {
   "expo": {
-    "name": "app-liloba-vaulter",
-    "slug": "app-liloba-vaulter",
+    "name": "liloba-vaulter-mobile",
+    "slug": "liloba-vaulter-mobile",
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./assets/logo.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
+      "image": "./assets/splash.jpg",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "config": {
@@ -21,31 +21,23 @@
     },
     "android": {
       "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      },
-      "package": "com.anonymous.applilobavaulter"
+      }
     },
     "web": {
       "bundler": "metro",
-      "output": "static"
+      "output": "static",
+      "favicon": "./assets/logo.png"
     },
     "plugins": [
       "expo-router",
-      "expo-secure-store",
+      "expo-build-properties",
+      "expo-font",
       [
-        "@morrowdigital/watermelondb-expo-plugin"
-      ],
-      [
-        "expo-build-properties",
+        "expo-secure-store",
         {
-          "android": {
-            "kotlinVersion": "1.6.10",
-            "packagingOptions": {
-              "pickFirst": [
-                "**/libc++_shared.so"
-              ]
-            }
-          }
+          "faceIDPermission": "Allow $(PRODUCT_NAME) to access your Face ID biometric data."
         }
       ]
     ],
