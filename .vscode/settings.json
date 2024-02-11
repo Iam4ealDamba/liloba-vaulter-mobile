@@ -1,0 +1,10 @@
+{
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "driver": "SQLite",
+      "database": "${workspaceFolder:liloba-vaulter-mobile}/services/db/mydb.sql",
+      "name": "truc"
+    }
+  ]
+}

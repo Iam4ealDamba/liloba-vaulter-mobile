@@ -8,29 +8,13 @@ import React, {
   Dispatch,
   SetStateAction,
 } from "react";
-import BottomSheet, {
-  BottomSheetModal,
-  BottomSheetScrollView,
-} from "@gorhom/bottom-sheet";
-import {
-  Text,
-  View,
-  TextInput,
-  Alert,
-  Button,
-  Pressable,
-  ScrollView,
-  SectionList,
-} from "react-native";
-import { FlatList, GestureHandlerRootView } from "react-native-gesture-handler";
-import { FontAwesome } from "@expo/vector-icons";
-import * as Clipboard from "expo-clipboard";
+import { BottomSheetModal, BottomSheetScrollView } from "@gorhom/bottom-sheet";
+import { View } from "react-native";
 
 import { IServiceItem } from "@/utils/interfaces";
-import ServiceItem from "@/components/items/ServiceItem";
-import CustomText from "@/components/text/CustomText";
 import colors from "@/utils/colors";
-import { SafeAreaView } from "react-native-safe-area-context";
+import ModifySheet from "./sheets/ModifySheet";
+import HomeSheet from "./sheets/HomeSheet";
 
 // ||||||||||||||||||||||||||||| Service Bottom Sheet Modal Component ||||||||||||||||||||||||||||||||||||
 
@@ -38,63 +22,51 @@ interface IServiceBottomSheetModalProps {
   is_open?: boolean;
   setIsOpen: Dispatch<SetStateAction<boolean>>;
   selected: IServiceItem | null;
-  set_selected_modify: Dispatch<SetStateAction<IServiceItem | null>>;
+  setSelected: Dispatch<React.SetStateAction<IServiceItem | null>>; 
 }
 
 const ServiceBottomSheetModal: FC<IServiceBottomSheetModalProps> = ({
-  is_open = false,
+  is_open,
   setIsOpen,
   selected,
-  set_selected_modify,
+  setSelected, 
 }) => {
-  const searchbar_ref = useRef<TextInput>(null);
+  // Hooks
+  const [sheet_selected, setSheetSelected] = useState<number>(0);
   const sheet_ref = useRef<BottomSheetModal>(null);
 
   // Variables
-  const snap_points = ["43%"];
-  const data_list = [
-    {
-      name: "Suprimmer le service",
-      logo: "trash",
-      on_pressed: () => {
-        setIsOpen(false);
-        return Alert.alert("Suppression", "Service supprimé !");
-      },
-    },
-    {
-      name: "Modifier le service",
-      logo: "edit",
-      on_pressed: () => {
-        set_selected_modify(selected);
-        setIsOpen(false);
-      },
-    },
-    {
-      name: "Afficher le mot de passe",
-      logo: "eye",
-      on_pressed: () => {
-        return Alert.alert("Mot de passe", selected?.password);
-      },
-    },
-    {
-      name: "Copier le mot de passe",
-      logo: "paste",
-      on_pressed: async () => {
-        await Clipboard.setStringAsync(selected?.password!);
-        return Alert.alert(
-          "Copier effectué",
-          "Le mot de passe a bien été copié !"
-        );
-      },
-    },
-  ];
+  const snap_points = ["47%", "57%"];
 
-  // Effects
+  // Functions
+  const SelectSheet = (choice: number) => {
+    switch (choice) {
+      case 0:
+        setSheetSelected(0);
+        break;
+      case 1:
+        setSheetSelected(1);
+        break;
+    }
+  };
+
+  useEffect(() => {
+    SelectSheet(0);
+  }, []);
+  useEffect(() => {
+    if (sheet_selected == 1) {
+      sheet_ref.current?.expand();
+    } else {
+      sheet_ref.current?.collapse();
+    }
+  }, [sheet_selected]);
   useEffect(() => {
     if (is_open) {
       sheet_ref.current?.present();
     } else {
       sheet_ref.current?.dismiss();
+      setSheetSelected(0);
+      setSelected(null);
     }
   }, [is_open]);
 
@@ -117,39 +89,19 @@ const ServiceBottomSheetModal: FC<IServiceBottomSheetModalProps> = ({
         }}
       >
         <BottomSheetScrollView>
-          <View className={"relative h-[100vh] divide-y-2 divide-tw_text/70"}>
-            <View className="px-6 py-2">
-              <ServiceItem data={selected} />
-            </View>
-            <View className="px-6 py-2">
-              <ScrollView>
-                {data_list.map((item, index) => {
-                  return (
-                    <Pressable
-                      key={item.name}
-                      className="flex flex-row gap-x-3 py-3"
-                      onPress={item.on_pressed}
-                    >
-                      <View className="w-5">
-                        <FontAwesome
-                          name={item.logo}
-                          size={20}
-                          color={colors.tw_text}
-                        />
-                      </View>
-                      <Text className="text-tw_text">{item.name}</Text>
-                    </Pressable>
-                  );
-                })}
-              </ScrollView>
-              <CustomText
-                style_1="absolute -bottom-8 left-6 text-sm text-tw_accent"
-                font="Regular"
-              >
-                Modifié le : 12/12/2022 à 12:00
-              </CustomText>
-            </View>
-          </View>
+          {sheet_selected == 0 ? (
+            <HomeSheet
+              selected={selected!}
+              set_sheet_selected={setSheetSelected}
+              setIsOpen={setIsOpen}
+            />
+          ) : (
+            <ModifySheet
+              selected={selected!}
+              set_is_open={setIsOpen}
+              set_sheet_selected={setSheetSelected} 
+            />
+          )}
         </BottomSheetScrollView>
       </BottomSheetModal>
     </View>
