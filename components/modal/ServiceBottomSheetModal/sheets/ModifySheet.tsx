@@ -103,15 +103,6 @@ const ModifySheet: FC<IModifySheetProps> = ({
     set_is_open(false);
   };
 
-  // useEffect
-  useEffect(() => {
-    useCustomToast({
-      type: "info",
-      header: "Message",
-      body: "Salut !",
-    });
-  }, []);
-
   // Return
   return (
     <View>
@@ -139,7 +130,6 @@ const ModifySheet: FC<IModifySheetProps> = ({
                 name="service_name"
                 rules={{ required: true }}
                 render={({ field: { onChange, value } }) => {
-                  console.log(value);
                   return (
                     <RegularInput
                       style={`${

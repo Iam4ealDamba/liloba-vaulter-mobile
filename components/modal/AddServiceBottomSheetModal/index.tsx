@@ -29,7 +29,6 @@ import {
 import RegularInput from "@/components/input/RegularInput";
 import RegularButton from "@/components/button/RegularButton";
 import { ZodServiceCreate } from "@/services/types";
-import { useCustomToast } from "@/hooks/CustomToast";
 import ServiceQueries from "@/services/queries/services";
 import { useAppDispatch, useAppSelector } from "@/store";
 import { StatusCode } from "@/utils/enums";

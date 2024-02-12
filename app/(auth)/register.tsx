@@ -98,7 +98,7 @@ const RegisterPage = () => {
     if (register.status !== StatusCode.Created) {
       useCustomToast({
         type: "error",
-        header: `Requête échouée (${register.status})`,
+        header: `Inscription échouée`,
         body: register.data as string,
       });
       return;
@@ -262,9 +262,10 @@ const RegisterPage = () => {
                         <TextInput
                           placeholder="Entrer un mot de passe"
                           placeholderTextColor={colors.tw_text + "80"}
-                          className="w-full ml-3 placeholder-tw_text text-tw_text "
                           value={value}
                           onChangeText={onChange}
+                          secureTextEntry
+                          className="w-full ml-3 placeholder-tw_text text-tw_text "
                         />
                       )}
                     />

@@ -54,7 +54,7 @@ const ProfileParameters: FC<IProfileParametersProps> = () => {
         await FileSystem.writeAsStringAsync(uri, get_json, {
           encoding: FileSystem.EncodingType.UTF8,
         }).catch((error) => {
-          console.log(error);
+          return error;
         });
       });
     } else {
@@ -103,7 +103,7 @@ const ProfileParameters: FC<IProfileParametersProps> = () => {
         });
       }
     } catch (error) {
-      console.log(error);
+      return error;
     }
   };
   const handleDeleteAccount = async () => {

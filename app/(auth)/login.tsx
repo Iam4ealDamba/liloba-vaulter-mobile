@@ -78,7 +78,6 @@ const LoginPage = () => {
         selector: verify_form.error.errors[0].path[0].toString(),
         msg: verify_form.error.errors[0].message,
       });
-
       useCustomToast({
         type: "error",
         header: `Formulaire invalide`,
@@ -92,7 +91,7 @@ const LoginPage = () => {
     if (login.status !== StatusCode.OK) {
       useCustomToast({
         type: "error",
-        header: `Requête échouée (${login.status})`,
+        header: `Connexion échouée`,
         body: login.data as string,
       });
       return;
@@ -107,7 +106,7 @@ const LoginPage = () => {
 
     useCustomToast({
       type: "success",
-      header: `Connexion reussie`,
+      header: `Connexion réussie`,
       body: "Vous allez être redirigés...",
     });
 
@@ -221,9 +220,10 @@ const LoginPage = () => {
                         <TextInput
                           placeholder="Entrer votre mot de passe"
                           placeholderTextColor={colors.tw_text + "80"}
-                          className="w-full ml-3 placeholder-tw_text text-tw_text"
                           value={value}
                           onChangeText={onChange}
+                          secureTextEntry
+                          className="w-full ml-3 placeholder-tw_text text-tw_text"
                         />
                       )}
                     />

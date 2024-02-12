@@ -110,10 +110,11 @@ const PasswordModify: FC<IProfileModifyProps> = () => {
                     }`}
                   >
                     <TextInput
-                      value={value}
-                      onChangeText={onChange}
                       placeholder="Votre ancien mot de passe"
                       placeholderTextColor={colors.tw_accent}
+                      value={value}
+                      onChangeText={onChange}
+                      secureTextEntry
                       className="w-full text-tw_text"
                     />
                   </RegularInput>
@@ -137,6 +138,7 @@ const PasswordModify: FC<IProfileModifyProps> = () => {
                       onChangeText={onChange}
                       placeholder="Votre nouveau mot de passe"
                       placeholderTextColor={colors.tw_accent}
+                      secureTextEntry
                       className="w-full text-tw_text"
                     />
                   </RegularInput>
@@ -160,6 +162,7 @@ const PasswordModify: FC<IProfileModifyProps> = () => {
                       onChangeText={onChange}
                       placeholder="Confirmer le mot de passe"
                       placeholderTextColor={colors.tw_accent}
+                      secureTextEntry
                       className="w-full text-tw_text"
                     />
                   </RegularInput>

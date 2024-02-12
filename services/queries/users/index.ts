@@ -90,7 +90,7 @@ class UserQueries {
       const query = await database.query.users.findFirst({
         where: eq(users.email, email),
       });
-      if (query == undefined) {
+      if (query == undefined || !query) {
         return {
           status: StatusCode.Unauthorized,
           data: "Erreur: L'adresse email / mot de passe est invalide.",
@@ -147,8 +147,6 @@ class UserQueries {
         data: current_user,
       };
     } catch (error) {
-      console.log(error);
-
       return {
         status: StatusCode.Bad_Request,
         data: error,

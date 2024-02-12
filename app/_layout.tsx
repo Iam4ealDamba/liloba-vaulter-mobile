@@ -3,10 +3,13 @@
 import React, { FC } from "react";
 import { Stack } from "expo-router";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import * as SplashScreen from "expo-splash-screen";
 
 import AppLayout from "@/layout/AppLayout";
 
 // ||||||||||||||||||||||||||||| RootLayout Component ||||||||||||||||||||||||||||||||||||
+
+SplashScreen.preventAutoHideAsync();
 
 interface IRootLayoutProps {}
 

@@ -16,8 +16,6 @@ import { IServiceItem } from "@/utils/interfaces";
 
 // ||||||||||||||||||||||||||||| RootIndex Component ||||||||||||||||||||||||||||||||||||
 
-SplashScreen.preventAutoHideAsync();
-
 const RootIndex = () => {
   // Redux
   const { token } = useAppSelector((state) => state.user);
@@ -56,7 +54,6 @@ const RootIndex = () => {
     AppDispatch(GetTokenSlice(get_token));
     AppDispatch(loginSlice(current.data as IUserStoreModel));
     AppDispatch(FetchServiceListSlice(current_services));
-    
 
     new Promise((resolve) =>
       setTimeout(() => {

@@ -178,8 +178,6 @@ class ServiceQueries {
           updated_at: services.updated_at,
         });
 
-      console.log(updated_service[0]);
-
       return {
         status: StatusCode.OK,
         data: updated_service[0],
@@ -216,7 +214,6 @@ class ServiceQueries {
       data: encrypted_data,
     };
     const to_parse = JSON.stringify(file_data);
-    console.log(to_parse);
 
     return to_parse;
   }
@@ -248,7 +245,6 @@ class ServiceQueries {
         if (query) {
           continue;
         }
-        console.log(service_occ);
         to_add_services.push(service_occ);
       }
 
@@ -262,8 +258,8 @@ class ServiceQueries {
             service_password: service.service_password,
             service_img_url: service.service_img_url,
           })
-          .then(() => console.log("success"))
-          .catch(() => console.log("fail"));
+          .then(() => {})
+          .catch(() => {});
       }
 
       const query = await database.query.services.findMany({

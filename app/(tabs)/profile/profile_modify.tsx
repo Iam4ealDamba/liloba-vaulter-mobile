@@ -144,7 +144,6 @@ const ProfileModify: FC<IProfileModifyProps> = () => {
         if (!result.canceled) {
           // Save Image
           await saveImage(result.assets[0].uri);
-          console.log(result.assets[0].uri);
         }
       }
     } catch (error: any) {
@@ -165,7 +164,6 @@ const ProfileModify: FC<IProfileModifyProps> = () => {
       .catch((error) => null);
 
     if (img) {
-      console.log(img);
       return uri;
     } else {
       return "";

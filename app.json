@@ -1,16 +1,16 @@
 {
   "expo": {
-    "name": "liloba-vaulter-mobile",
-    "slug": "liloba-vaulter-mobile",
+    "name": "Liloba Vaulter",
+    "slug": "liloba-vaulter",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/logo.png",
+    "icon": "./assets/android/icon.png",
     "scheme": "myapp",
     "userInterfaceStyle": "automatic",
     "splash": {
-      "image": "./assets/splash.jpg",
+      "image": "./assets/android/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#203554"
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
@@ -20,15 +20,16 @@
       }
     },
     "android": {
+      "allowBackup": false,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "backgroundColor": "#203554"
+      },
+      "package": "com.iamdamba.lilobavaulter"
     },
     "web": {
       "bundler": "metro",
       "output": "static",
-      "favicon": "./assets/logo.png"
+      "favicon": "./assets/android/icon.png"
     },
     "plugins": [
       "expo-router",
@@ -43,6 +44,14 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "04ab250d-6d23-49c6-b5e3-b291a4bb410b"
+      }
     }
   }
 }
